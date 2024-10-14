@@ -1,26 +1,67 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+
+const OPTION1 = `Replace with single quotes ('...',)`;
+const OPTION2 = `Replace with double quotes ("...",)`;
+const OPTION3 = 'Concat text with ~~';
+const OPTION4 = 'Concat text with ,';
+// const OPTION5 = 'Concat text with character';
+const options = [OPTION1, OPTION2, OPTION3, OPTION4];
+
 export function activate(context: vscode.ExtensionContext) {
+	let disposable = vscode.commands.registerCommand('extension.replaceText', async () => {
+		const editor = vscode.window.activeTextEditor;
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "rows-replace-character" is now active!');
+		if (editor) {
+			const selection = editor.selection;
+			const selectedText = editor.document.getText(selection);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('rows-replace-character.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from rows-replace-character!');
+			// Opción para reemplazo en principio y fin de línea
+			const replaceMode = await vscode.window.showQuickPick(
+				options,
+				{
+					placeHolder: 'Choose the replace method'
+				}
+			);
+
+			try {
+				let regex: RegExp = new RegExp(`^(.+)$`, 'gm');
+
+				let replaceText = '';
+				switch (replaceMode) {
+					case OPTION1:
+						replaceText = "'$1',";
+						break;
+					case OPTION2:
+						replaceText = `"$1",`;
+						break;
+					case OPTION3:
+						regex = new RegExp(`\n+`, 'gm'); // Start of line 
+						replaceText = '~~';
+						break;
+					case OPTION4:
+						regex = new RegExp(`\n+`, 'gm'); // Start of line 
+						replaceText = ',';
+						break;
+					default:
+						replaceText = "'$1',";
+						break;
+				}
+
+
+				const replacedText = selectedText.replace(regex, replaceText);
+
+				editor.edit(editBuilder => {
+					editBuilder.replace(selection, replacedText);
+				});
+			} catch (error: any) {
+				vscode.window.showErrorMessage(`Error applying replace: ${error.message}. Verify the regext expresion is valid.`);
+			}
+		}
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+
+export function deactivate() { }
