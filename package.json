@@ -3,8 +3,8 @@
   "displayName": "rows-replace-character",
   "description": "for a list of rows replace the by text or regex",
   "version": "1.0.0",
-  "icon": "♋️",
-  "publisher": "images/extension.png",
+  "icon": "images/extension.png",
+  "publisher": "ssanty9",
   "engines": {
     "vscode": "^1.94.0"
   },
