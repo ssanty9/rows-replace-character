@@ -54,6 +54,10 @@ export function activate(context: vscode.ExtensionContext) {
 				editor.edit(editBuilder => {
 					editBuilder.replace(selection, replacedText);
 				});
+
+				//Copy to clipboard
+				vscode.env.clipboard.writeText(replacedText);
+
 			} catch (error: any) {
 				vscode.window.showErrorMessage(`Error applying replace: ${error.message}. Verify the regext expresion is valid.`);
 			}
